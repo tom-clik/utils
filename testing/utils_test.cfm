@@ -5,14 +5,13 @@
 Used when needed
 
 
-## Usage
-
-http://local.clikpic.com/customtags/utils/testing/utils_test.cfm
-
 --->
 
 <cfscript>
-request.utils = new cfscript.utils();
+
+
+abort;
+request.utils = new utils.utils();
 
 param name="url.test" default="tags";
 

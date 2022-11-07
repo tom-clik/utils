@@ -8,7 +8,7 @@
 			<cfset var filedata = false>
 			<cfset var dataStruct = false>
 			
-			<cfset filedata = fnReadFile(arguments.filename)>
+			<cfset filedata = fileRead(arguments.filename)>
 
 			<!--- not 100% sure why this is here. Possibly to make readable json files for moustache templates ?? 
 			<cfset filedata = reReplace(filedata,"[\r\n]"," ","all")>
@@ -106,7 +106,7 @@
 				</cfcase>
 				<cfcase value="int,numeric">
 					<cfif value neq "">
-						<cfif NOT IsNumeric(value) OR (field.type eq "int" AND NOT isInt(value))>
+						<cfif NOT IsNumeric(value) OR (field.type eq "int" AND NOT isValid("integer",value))>
 							<cfthrow type="jsonvalidate" message="Specified value for #local.fieldName# [#value#] not #field.type#">
 						</cfif>
 						<cfif structKeyExists(field, "max") AND NOT value lte field.max>
@@ -167,4 +167,21 @@
 		<cfreturn retFields>
 
 	</cffunction>
+
+	<cfscript>
+	/**
+ * Capitalise first letter and replace underscors with spaces.
+ */
+function labelFormat(textStr) {
+	arguments.textStr = Replace(arguments.textStr,"_"," ","all");
+	arguments.textStr = Ucase(Left(arguments.textStr,1)) & Right(arguments.textStr,Len(arguments.textStr)-1);
+	if (right(arguments.textStr,3) eq " id") {
+		arguments.textStr = Left(arguments.textStr,len(arguments.textStr) - 3) & " ID";
+	}
+	return arguments.textStr;
+}
+
+
+	</cfscript>
+
 </cfcomponent>

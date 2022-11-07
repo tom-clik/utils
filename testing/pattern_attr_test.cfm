@@ -4,10 +4,6 @@
 
 Demonstrates Usage of Java patterns in ColdFusion
 
-## Usage
-
-http://tpc25.clikpic.com/customtags/clikpic/_testing/pattern_attr_test.cfm
-
 --->
 
 <cfscript>

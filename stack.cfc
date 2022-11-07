@@ -2,11 +2,11 @@
 
 component {
 
-	public stack function new() {
+	public stack function init() {
 		variables.stack = ArrayNew(1);
 		return this;
 	}
-
+	
 	public void function push(required any obj) {
 		ArrayAppend(variables.stack,arguments.obj);
 	}

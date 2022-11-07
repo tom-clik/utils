@@ -1,0 +1,13 @@
+
+/* test comment
+
+with extra here
+
+*/
+simple:0
+complex.data:1
+complex.foo:howdy //pardner
+
+other:data
+tab	can be used //and a comment
+space can be used //and a comment
