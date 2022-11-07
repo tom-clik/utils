@@ -1,0 +1,368 @@
+{
+   "fields":{
+      "DEFAULT_TITLE":{
+         "DEFAULT":""
+      },
+      "ALLOW_IMAGES":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "MULTIPLE_ARTICLES":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_FEED_TYPE":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_INTRO":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_FEED_ID":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "GALLERY_NO_INDEX":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "DEFAULT_COPY":{
+         "DEFAULT":""
+      },
+      "PORTALS_ID":{
+         "DEFAULT":""
+      },
+      "SITE_SECTIONS_OPTION":{
+         "REQUIRED":1
+      },
+      "OPTIONAL":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":1
+      },
+      "TEMPLATE_ACTIONS_ID":{
+         "DEFAULT":"0"
+      },
+      "ALLOW_SEARCH":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_COMMENTS":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":1
+      },
+      "DESCRIPTION":{
+         "REQUIRED":1
+      },
+      "DEFAULT_PHOTO_MODES_ID":{
+         "DEFAULT":""
+      },
+      "SITE_SECTIONS_OPTIONS_ID":{
+         "REQUIRED":1
+      },
+      "ALLOW_SURVEYS":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "default_survey_code":{
+         "DEFAULT":""
+      },
+      "ALLOW_CODE_EDIT":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":1
+      },
+      "ALLOW_COPY":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_DATES":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_TITLE":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":1
+      },
+      "ALLOW_OMIT_FROM_MENU":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":1
+      },
+      "DEFAULT_INTRO":{
+         "DEFAULT":""
+      },
+      "CODE":{
+         "REQUIRED":1
+      },
+      "USE_SUB_MENU":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_KEYWORDS":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":1
+      },
+      "SHOW_IMAGES":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "ALLOW_CHILD_SITE_SECTIONS":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "SORT_ORDER":{
+         "TYPE":"INT",
+         "DEFAULT":0
+      },
+      "MAX_PER_SITE":{
+         "DEFAULT":""
+      },
+      "ALLOW_EXTERNAL_LINK":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT":0
+      },
+      "LOAD_INLINE":{
+         "DEFAULT":0
+      },
+      "ALLOW_IMAGE_SETS":{
+         "TYPE":"BOOLEAN",
+         "DEFAULT": "0"
+      }
+   },
+   "33":{
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Blank section",
+      "DESCRIPTION":"A blank section to which content is assigned entirely by content sections.",
+      "SITE_SECTIONS_OPTIONS_ID":33,
+      "CODE":"blank",
+      "SORT_ORDER":230
+   },
+   "34":{
+      "DEFAULT_TITLE":"Search",
+      "ALLOW_INTRO":1,
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Search",
+      "ALLOW_COMMENTS":0,
+      "DESCRIPTION":"A search facility for your site.",
+      "SITE_SECTIONS_OPTIONS_ID":34,
+      "CODE":"search",
+      "ALLOW_KEYWORDS":0,
+      "SORT_ORDER":300,
+      "MAX_PER_SITE":1
+   },
+   "35":{
+      "DEFAULT_TITLE":"Flickr Gallery",
+      "ALLOW_FEED_TYPE":1,
+      "ALLOW_INTRO":1,
+      "ALLOW_FEED_ID":1,
+      "PORTALS_ID":"1,3,5,6",
+      "SITE_SECTIONS_OPTION":"Flickr Gallery",
+      "DESCRIPTION":"The Flickr Gallery section allows you to show photos from your flickr photostream or a flickr photoset in a gallery on your website",
+      "DEFAULT_PHOTO_MODES_ID":4,
+      "SITE_SECTIONS_OPTIONS_ID":35,
+      "CODE":"flickrgallery",
+      "SORT_ORDER":310
+   },
+   "36":{
+      "DEFAULT_TITLE":"Online shop",
+      "ALLOW_IMAGES":1,
+      "MULTIPLE_ARTICLES":1,
+      "ALLOW_INTRO":1,
+      "GALLERY_NO_INDEX":1,
+      "PORTALS_ID":"4,5,7",
+      "SITE_SECTIONS_OPTION":"Online shop",
+      "TEMPLATE_ACTIONS_ID":"0,1,3,4",
+      "TEMPLATE_ACTIONS_LABELS": {
+         "4":"Product category index",
+         "3":"Product view page"
+         },
+      "ALLOW_SEARCH":1,
+      "DESCRIPTION":"An online shop section",
+      "SITE_SECTIONS_OPTIONS_ID":36,
+      "CODE":"onlineshop",
+      "USE_SUB_MENU":1,
+      "SORT_ORDER":320
+   },
+   "15":{
+      "ALLOW_INTRO":1,
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Guestbook",
+      "ALLOW_COMMENTS":0,
+      "DESCRIPTION":"Use this section type to list comments users have left you via a contact form.<br><br>\r\n<strong>NB</strong> This section will only work if <ol><li>You have a contact form on your site</li><li>You have received some messages from users and marked their status as &quot;Use on guestbook&quot;</li></ol>",
+      "SITE_SECTIONS_OPTIONS_ID":15,
+      "ALLOW_SURVEYS":1,
+      "DEFAULT_SURVEY_CODE":"guestbook",
+      "ALLOW_COPY":1,
+      "CODE":"guestbook",
+      "SORT_ORDER":80,
+      "MAX_PER_SITE":1,
+      "ALLOW_DATES":1
+   },
+   "16":{
+      "DEFAULT_TITLE":"Contact ",
+      "ALLOW_INTRO":1,
+      "DEFAULT_COPY":"Thanks for contacting us.",
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Contact form",
+      "TEMPLATE_ACTIONS_ID":"0,1",
+      "ALLOW_COMMENTS":0,
+      "DESCRIPTION":"A contact form that allows people to send you mail without publishing your email on the internet.<br><br>There are extensive options for customising the form questions in the <a href=\"custom_forms.cfm\">Forms</a> section of the admin system.",
+      "SITE_SECTIONS_OPTIONS_ID":16,
+      "ALLOW_SURVEYS":1,
+      "default_survey_code":"contact",
+      "ALLOW_COPY":1,
+      "DEFAULT_INTRO":"Use this form to contact us. Please remember to check your email details are correct!",
+      "CODE":"contactform",
+      "ALLOW_KEYWORDS":0,
+      "SORT_ORDER":60
+   },
+   "17":{
+      "ALLOW_INTRO":1,
+      "PORTALS_ID":"1,3,6",
+      "SITE_SECTIONS_OPTION":"Slideshow",
+      "DESCRIPTION":"Section showing a single slideshow of photos ",
+      "SITE_SECTIONS_OPTIONS_ID":17,
+      "CODE":"slideshow",
+      "ALLOW_KEYWORDS":0,
+      "SORT_ORDER":200,
+      "ALLOW_IMAGE_SETS":1
+   },
+   "1":{
+      "DEFAULT_TITLE":"Welcome",
+      "ALLOW_INTRO":1,
+      "DEFAULT_COPY":"Edit the text for your home page by using the \"Homepage &amp; style\"  section in the administration system. You can also change the \"Welcome\" message to anything you like.",
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Home page",
+      "OPTIONAL":0,
+      "DESCRIPTION":"Edit the title (e.g. Welcome) and text on your home page.<br><br>NB to change the name of your site itself use the \"My site\" section.",
+      "DEFAULT_PHOTO_MODES_ID":3,
+      "SITE_SECTIONS_OPTIONS_ID":1,
+      "ALLOW_CODE_EDIT":0,
+      "ALLOW_COPY":1,
+      "ALLOW_OMIT_FROM_MENU":1,
+      "CODE":"photoindex",
+      "SORT_ORDER":10,
+      "MAX_PER_SITE":1
+   },
+   "2":{
+      "DEFAULT_TITLE":"Gallery",
+      "ALLOW_INTRO":1,
+      "GALLERY_NO_INDEX":1,
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Photo Gallery",
+      "TEMPLATE_ACTIONS_ID":"0,1,2,3,4",
+      "TEMPLATE_ACTIONS_LABELS": {
+         "1":"Gallery index",
+         "2":"Gallery photos",
+         "3":"Photo view",
+         "4":"Gallery sub-index"
+         },
+      "ALLOW_SEARCH":1,
+      "DESCRIPTION":"<p>Add additional photo gallery sections to your site</p><p><strong>NB</strong> You must also create at least one \"gallery\" to go into this section to display your photos<p>",
+      "DEFAULT_PHOTO_MODES_ID":3,
+      "SITE_SECTIONS_OPTIONS_ID":2,
+      "DEFAULT_INTRO":"This is the section in which you display your images. It is divided into individual galleries that you edit using the \"Galleries\" section in the left hand menu.<br><br>To upload the photos themselves, use the \"photos\" section, although you must create your galleries first.",
+      "CODE":"gallery",
+      "USE_SUB_MENU":1,
+      "SORT_ORDER":20
+   },
+   "3":{
+      "DEFAULT_TITLE":"News",
+      "MULTIPLE_ARTICLES":1,
+      "ALLOW_INTRO":1,
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Multiple page sections",
+      "TEMPLATE_ACTIONS_ID":"0,1,3",
+      "TEMPLATE_ACTIONS_LABELS": {
+         "1":"Article list",
+         "3":"Article view"
+         },
+      "ALLOW_SEARCH":1,
+      "DESCRIPTION":"<p>Create a section with multiple pages or a \"blog\" style section with multiple items listed on one page.</p>\r\n<p>To add the actual items, use \"articles\"</p>",
+      "SITE_SECTIONS_OPTIONS_ID":3,
+      "ALLOW_DATES":1,
+      "DEFAULT_INTRO":"Use this section to upload news stories about you, your club or your business. This section is optional. Edit this copy by using the \"Sections\" section in the administration system, edit the stories themselves using the \"News\" section.",
+      "CODE":"articles",
+      "USE_SUB_MENU":1,
+      "SORT_ORDER":30,
+      "LOAD_INLINE":"0,1,2",
+      "LOAD_INLINE_LABELS": {
+         "0": "Don't show body text",
+         "1": "Load inline",
+         "2": "Show body text in listing"
+      }
+   },
+   "4":{
+      "DEFAULT_TITLE":"Links",
+      "ALLOW_INTRO":1,
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Links",
+      "DESCRIPTION":"Display links to other websites, or contact addresses and telephone numbers.<br><br>\r\nTo edit the actual links themselves, choose the \"links\" option in the left hand menu.",
+      "SITE_SECTIONS_OPTIONS_ID":4,
+      "DEFAULT_INTRO":"Use this section to add links to other sites. This section is optional.",
+      "CODE":"links",
+      "SHOW_IMAGES":1,
+      "SORT_ORDER":40
+   },
+   "5":{
+      "DEFAULT_TITLE":"Services",
+      "ALLOW_INTRO":1,
+      "GALLERY_NO_INDEX":1,
+      "DEFAULT_COPY":"This section can used for anything you wish. Use the \"Sections\" section in the administration system to name the section and amend the text.",
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Single page section",
+      "DESCRIPTION":"Create a single page section  <br><br>  To edit the page, simply enter text into the \"Main text content\" field on the form. See the user guide for more information about editing text. ",
+      "SITE_SECTIONS_OPTIONS_ID":5,
+      "ALLOW_COPY":1,
+      "CODE":"info",
+      "USE_SUB_MENU":1,
+      "ALLOW_CHILD_SITE_SECTIONS":1,
+      "SORT_ORDER":50
+   },
+   "7":{
+      "DEFAULT_TITLE":"Prints",
+      "ALLOW_INTRO":1,
+      "DEFAULT_COPY":"<p>Prints are available of all the images shown on this site at the prices shown above.</p>\r\n",
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Pricing information",
+      "DESCRIPTION":"<p>If you integrate your site with a <a href=\"payment.cfm\">payment system</a>, this section will create a single page section with details of all your prices</p>",
+      "SITE_SECTIONS_OPTIONS_ID":7,
+      "ALLOW_COPY":1,
+      "DEFAULT_INTRO":"Information about purchasing prints online",
+      "CODE":"prints",
+      "SORT_ORDER":70,
+      "MAX_PER_SITE":1
+   },
+   "31":{
+      "DEFAULT_TITLE":"Shopping cart",
+      "ALLOW_INTRO":1,
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Shopping Cart",
+      "OPTIONAL":0,
+     "ALLOW_COMMENTS":0,
+      "DESCRIPTION":"Automatically added if you add selling capabilities to your site ",
+      "SITE_SECTIONS_OPTIONS_ID":31,
+      "ALLOW_CODE_EDIT":0,
+      "CODE":"cart",
+      "ALLOW_KEYWORDS":0,
+      "SORT_ORDER":210,
+      "MAX_PER_SITE":1
+   },
+   "32":{
+      "DEFAULT_TITLE":"Checkout",
+      "ALLOW_INTRO":1,
+      "PORTALS_ID":"1,3,4,5,6,7",
+      "SITE_SECTIONS_OPTION":"Checkout",
+      "OPTIONAL":0,
+      "TEMPLATE_ACTIONS_ID":"0,1,3",
+      "ALLOW_COMMENTS":0,
+      "DESCRIPTION":"The checkout section for sites with shopping cart functionality that aren't integrated with a payment system",
+      "SITE_SECTIONS_OPTIONS_ID":32,
+      "ALLOW_SURVEYS":1,
+      "default_survey_code":"checkout",
+      "ALLOW_CODE_EDIT":0,
+      "CODE":"checkout",
+      "ALLOW_KEYWORDS":0,
+      "SORT_ORDER":220,
+      "MAX_PER_SITE":1
+   }
+}
