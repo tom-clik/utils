@@ -1,147 +1,126 @@
-<cfcomponent>
-<cffunction name="xml2Data" hint="Parse XML into a Struct array of structs" description="An improvement on xml2struct which recognises whether a node needs to be an array. This allows for single records or multiple records without worrying about which is which. The results will be an array or a struct. Sub records within the data are similarly coped with so there's no need to go back and convert structs keyed by row number into arrays.">
-		
-	<cfargument name="xmlData" required="yes" hint="Either XML as produced by parseXML or else an array of XML nodes (the latter should only be used when recursing)">
-	<cfargument name="addOrder"  required="false" default="0" hint="Add sort_order field to nodes to preserve order">
-	<cfset var retData = false>
-	<cfset var root = false>
-	
-	<cfset var root = arguments.xmlData.xmlRoot>
+component {
 
-	<cfset var retData = parseXMLNode(root,arguments.addOrder)>
-	
-	<cfreturn retData>
+	/**
+	 * Parse XML into a Struct array of structs
+	 * @description An improvement on xml2struct which recognises whether a node needs to be an array. This allows for single records or multiple records without worrying about which is which. The results will be an array or a struct. Sub records within the data are similarly coped with so there's no need to go back and convert structs keyed by row number into arrays.
+	 */
+	public function xml2Data(required xmlData, addOrder="0") {
+		var retData = false;
+		var root = false;
+		var root = arguments.xmlData.xmlRoot;
+		var retData = parseXMLNode(root,arguments.addOrder);
+		return retData;
+	}
 
-</cffunction>
-
-<cffunction name="parseXMLNode" hint="Parse an XML node into a struct or array. helper function for xml2Data. " access="public" returntype="any">
-		
-	<cfargument name="xmlElement" required="yes" hint="Either XML as produced by parseXML or else an array of XML nodes (the latter should only be used when recursing)">
-	<cfargument name="addOrder" required="false" default="0" hint="Add sort_order field to nodes to preserve order">
-
-	<cfset var retVal = false>
-	<cfset var child = false>
-	
-
-	<cfif isArrayNode(arguments.xmlElement)>
-		<cfset retVal = []>
-		<cfloop index="child" array="#arguments.xmlElement.xmlChildren#">
-			<cfset ArrayAppend(retVal,parseXMLNode(child,arguments.addOrder))>
-		</cfloop>		
-	<cfelse>
-		<cfset retVal = [=]>
-		<cfif arguments.addOrder>
-			<cfset var order = 0>
-		</cfif>
-		<cfloop index="child" array="#arguments.xmlElement.xmlChildren#">
-			
-			<cfif Trim(child.xmlText) neq "" AND  ArrayLen(child.xmlChildren) gte 1>
-				<!---assume mixed node is html--->
-				<cfset local.text = reReplace(ToString(child),"([\n\r])\t+","\1","all")>
-				<cfset local.text = reReplace(local.text,"\<\?xml.*?\>","")>
-				<cfset local.text = reReplace(local.text,"\<\/?#child.XmlName#\>","","all")>
-				<cfset addDataToNode(retVal,child.XmlName,local.text)>
-			<cfelseif ArrayLen(child.xmlChildren) gte 1 OR NOT structIsEmpty(child.XmlAttributes)>
-				<cfset local.data = parseXMLNode(child,arguments.addOrder)>
-				<cfif IsStruct(local.data) AND arguments.addOrder>
-					<cfset local.data["sort_order"] = order>
-					<cfset order += 1>
-				</cfif>
-				<cfset addDataToNode(retVal,child.XmlName,local.data)>
-			<cfelse>
-				<cfset addDataToNode(retVal,child.XmlName,reReplace(child.xmlText,"([\n\r])\t+","\1","all"))>
-			</cfif>	
-		</cfloop>
-		
-		<!--- only append attribute values now. --->
-		<cfset local.attrVals = this.xmlAttributes2Struct(arguments.xmlElement.XmlAttributes)>
-		<cfset StructAppend(retVal,local.attrVals,false)>
-
-		<!--- allow use of arbitrary text content as "value" attribute in mixed nodes 
+	/**
+	 * Parse an XML node into a struct or array. helper function for xml2Data. 
+	 */
+	public any function parseXMLNode(required xmlElement, addOrder="0") {
+		var retVal = false;
+		var child = false;
+		if ( isArrayNode(arguments.xmlElement) ) {
+			retVal = [];
+			for ( child in arguments.xmlElement.xmlChildren ) {
+				ArrayAppend(retVal,parseXMLNode(child,arguments.addOrder));
+			}
+		} else {
+			retVal = [=];
+			if ( arguments.addOrder ) {
+				var order = 0;
+			}
+			for ( child in arguments.xmlElement.xmlChildren ) {
+				if ( Trim(child.xmlText) != "" &&  ArrayLen(child.xmlChildren) >= 1 ) {
+					// assume mixed node is html
+					local.text = reReplace(ToString(child),"([\n\r])\t+","\1","all");
+					local.text = reReplace(local.text,"\<\?xml.*?\>","");
+					local.text = reReplace(local.text,"\<\/?#child.XmlName#\>","","all");
+					addDataToNode(retVal,child.XmlName,local.text);
+				} else if ( ArrayLen(child.xmlChildren) >= 1 || !structIsEmpty(child.XmlAttributes) ) {
+					local.data = parseXMLNode(child,arguments.addOrder);
+					if ( IsStruct(local.data) && arguments.addOrder ) {
+						local.data["sort_order"] = order;
+						order += 1;
+					}
+					addDataToNode(retVal,child.XmlName,local.data);
+				} else {
+					addDataToNode(retVal,child.XmlName,reReplace(child.xmlText,"([\n\r])\t+","\1","all"));
+				}
+			}
+			//  only append attribute values now. 
+			local.attrVals = this.xmlAttributes2Struct(arguments.xmlElement.XmlAttributes);
+			StructAppend(retVal,local.attrVals,false);
+			/*  allow use of arbitrary text content as "value" attribute in mixed nodes 
 		if value is already defined as attribute, use textValue, unless tag is <option> in which case use display
-		--->
-		<cfif NOT arrayLen(arguments.xmlElement.xmlChildren) AND Trim(arguments.xmlElement.xmlText) neq "" AND structCount(retVal)>
-			<cfset local.tagName = "value">
-			<cfif structKeyExists(retVal,"value")>
-				<cfif arguments.xmlElement.XmlName eq "option">
-					<cfset local.tagName = "display">
-				<cfelse>
-					<cfset local.tagName = "textValue">
-				</cfif>
-			</cfif>
+		*/
+			if ( !arrayLen(arguments.xmlElement.xmlChildren) && Trim(arguments.xmlElement.xmlText) != "" && structCount(retVal) ) {
+				local.tagName = "value";
+				if ( structKeyExists(retVal,"value") ) {
+					if ( arguments.xmlElement.XmlName == "option" ) {
+						local.tagName = "display";
+					} else {
+						local.tagName = "textValue";
+					}
+				}
+				retVal[local.tagName] = reReplace(arguments.xmlElement.xmlText,"([\n\r])\t+","\1","all");
+			}
+		}
+		return retVal;
+	}
 
-			<cfset retVal[local.tagName] = reReplace(arguments.xmlElement.xmlText,"([\n\r])\t+","\1","all")>
-		</cfif>
+	/**
+	 * helper function for parseXMLNode. Adds data to a struct. If the key already exists, appends to an array
+	 */
+	private void function addDataToNode(required sNode, required key, required sData) {
+		if ( !structKeyExists(arguments.sNode,arguments.key) ) {
+			//  Guess data type. 
+			if ( isNumeric(arguments.sData) ) {
+				arguments.sNode[arguments.key] = Val(arguments.sData);
+			} else if ( isBoolean(arguments.sData) ) {
+				arguments.sNode[arguments.key] = !NOT arguments.sData;
+			} else {
+				arguments.sNode[arguments.key]= arguments.sData;
+			}
+		} else {
+			if ( !isArray(arguments.sNode[arguments.key]) ) {
+				local.tmpHolder = Duplicate(arguments.sNode[arguments.key]);
+				arguments.sNode[arguments.key] = [];
+				arrayAppend(arguments.sNode[arguments.key],local.tmpHolder);
+			}
+			arrayAppend(arguments.sNode[arguments.key],arguments.sData);
+		}
+	}
 
-	</cfif>
+	/**
+	 * helper function for parseXMLNode. Checks whether node should be an array of nodes
+	 */
+	private boolean function isArrayNode(required xmlElement) {
+		//  if all the children have the same name, then this is an array 
+		var isArray = 0;
+		var childNames = {};
+		if ( structIsEmpty(arguments.xmlElement.XMLAttributes) && arrayLen(arguments.xmlElement.xmlChildren) > 1 ) {
+			for ( local.child in arguments.xmlElement.xmlChildren ) {
+				childNames[local.child.XMLName] = 1;
+			}
+			if ( structCount(childNames) == 1 ) {
+				isArray = 1;
+			}
+		}
+		return isArray;
+	}
 
-	<cfreturn retVal>
+	public function xmlAttributes2Struct(xmlAttributes) {
+		var retStr = {};
+		for ( local.key in arguments.xmlAttributes ) {
+			//  Guess data type. 
+			local.value = arguments.xmlAttributes[local.key];
+			if ( isNumeric(local.value) ) {
+				local.value = Val(local.value);
+			} else if ( isBoolean(local.value) ) {
+				local.value = !NOT local.value;
+			}
+			retStr[local.key] = local.value;
+		}
+		return retStr;
+	}
 
-</cffunction>
-
-<cffunction name="addDataToNode" returntype="void" hint="helper function for parseXMLNode. Adds data to a struct. If the key already exists, appends to an array" access="private">
-	
-	<cfargument name="sNode" required="true">
-	<cfargument name="key" required="true">
-	<cfargument name="sData" required="true">
-
-	<cfif NOT structKeyExists(arguments.sNode,arguments.key)>
-		<!--- Guess data type. --->
-		<cfif isNumeric(arguments.sData)>
-			<cfset arguments.sNode[arguments.key] = Val(arguments.sData)>
-		<cfelseif isBoolean(arguments.sData)>
-			<cfset arguments.sNode[arguments.key] = NOT NOT arguments.sData>
-		<cfelse>
-			<cfset arguments.sNode[arguments.key]= arguments.sData>
-		</cfif>
-	<cfelse>
-		<cfif NOT isArray(arguments.sNode[arguments.key])>
-			<cfset local.tmpHolder = Duplicate(arguments.sNode[arguments.key])>
-			<cfset arguments.sNode[arguments.key] = []>
-			<cfset arrayAppend(arguments.sNode[arguments.key],local.tmpHolder)>
-		</cfif>
-		<cfset arrayAppend(arguments.sNode[arguments.key],arguments.sData)>
-	</cfif>
-
-</cffunction>
-
-<cffunction name="isArrayNode" returntype="boolean" hint="helper function for parseXMLNode. Checks whether node should be an array of nodes" access="private">
-	<!--- if all the children have the same name, then this is an array --->
-	<cfargument name="xmlElement" required="yes">
-	
-	<cfset var isArray = 0>
-	<cfset var childNames = {}>
-
-	<cfif structIsEmpty(arguments.xmlElement.XMLAttributes) AND arrayLen(arguments.xmlElement.xmlChildren) gt 1>
-		<cfloop index="local.child" array="#arguments.xmlElement.xmlChildren#">
-			<cfset childNames[local.child.XMLName] = 1>
-		</cfloop>
-		<cfif structCount(childNames) eq 1>
-			<cfset isArray = 1>
-		</cfif>
-	</cfif>
-
-	<cfreturn isArray>
-
-</cffunction>
-<cffunction name="xmlAttributes2Struct">
-		<cfargument name="xmlAttributes">
-
-		<cfset var retStr = {}>
-
-		<cfloop collection="#arguments.xmlAttributes#" item="local.key">
-			<!--- Guess data type. --->
-			<cfset local.value = arguments.xmlAttributes[local.key]>
-			<cfif isNumeric(local.value)>
-				<cfset local.value = Val(local.value)>
-			<cfelseif isBoolean(local.value)>
-				<cfset local.value = NOT NOT local.value>
-			</cfif>
-
-			<cfset retStr[local.key] = local.value>
-		</cfloop>
-
-		<cfreturn retStr>
-	</cffunction>
-	
-</cfcomponent>
+}

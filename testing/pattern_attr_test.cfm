@@ -10,7 +10,6 @@ Demonstrates Usage of Java patterns in ColdFusion
 myTestString = "[[image anotheratt= ' single never' another=abcfeg oneattr = ""'quote yeah yea'h'"" ]]";
 patternObj = createObject( "java", "java.util.regex.Pattern");
 myPattern = "(\w+)(\s*=\s*(""(.*?)""|'(.*?)'|([^'"">\s]+)))";
-
 pattern = patternObj.compile(myPattern);
 tagObjs = pattern.matcher(myTestString);
 fixEntities = [];

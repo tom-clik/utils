@@ -22,8 +22,8 @@ http://local.clikpic.com/customtags/cfscript/testing/load json data_test.cfm
 --->
 
 <cfscript>
-request.utils = new utils.jsondata();
-variables.siteResourcesTypes = request.utils.fnLoadJSONDataFile(ExpandPath("site_resources_types.json"));
+request.jsonutils = new utils.jsondata();
+variables.siteResourcesTypes = request.jsonutils.loadJSONDataFile(ExpandPath("site_resources_types.json"));
 writeDump(variables.siteResourcesTypes);
 </cfscript>
 

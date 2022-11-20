@@ -1,32 +1,20 @@
 <!--- some useful functions to have in the server scope --->
 <cfcomponent name="utils">
 
-	<cffunction name="init" hint="Optional pseudo constructor. You need this if you are going to use mappings or caching
+	<cffunction name="init" hint="Optional pseudo constructOR. You need this if you are going to use mappings or caching
 		for file paths in functions like load settings">
 		
 		<cfset variables.mappings = {}>
 		
-		<!--- where we have a mapping for customtags, add that mapping to this object --->
-		<cfset local.path = ExpandPath("/customtags/cfscript")>
-			
-		<cfif DirectoryExists(local.path)>
-			<cfset fnAddMapping("utils", local.path)>
-		</cfif>
-		
-	    <cfset this.collections =  createObject( "java", "java.util.Collections" )>
-	        
-		<cfset fnSetLog(0)>
-
 		<cfreturn this>
 			
 	</cffunction>
 
-	<cffunction name="fnGetFileMapping" output="false" returntype="string" hint="Test whether the file path passed in has a mapping associated with it. Returned the mapped filepath or blank if no mapping is found."
+	<cffunction name="fileMapping" output="false" returntype="string" hint="Test whether the file path passed in has a mapping associated with it. Returned the mapped filepath or blank if no mapping is found."
 		notes="E.g. if you have a mapping of dev.clikpic.com/testing => C:\inetpub\wwwroot\clikpic\testing then dev.clikpic.com/testing/test.html
 		will return C:\inetpub\wwwroot\clikpic\testing\test.html<br><br>">
 			
 		<cfargument name="filepath" type="string" required="true">
-		<cfargument name="returnOriginal" type="boolean" default="false" hint="Annoyingly the original function returned blank(??) set this to true to return original entry if it isn't in a mapping. Much more useful.">
 		<cfargument name="cache" type="boolean" required="false" default="1" hint="optionally maintain a cache">
 
 		<cfif arguments.cache AND NOT StructKeyExists(this,"fileMappingCache")>
@@ -34,7 +22,7 @@
 		</cfif>
 
 		<cfif NOT arguments.cache OR NOT structKeyExists(this.fileMappingCache,arguments.filepath)>
-			<cfset local.retVal = arguments.returnOriginal ? arguments.filepath : "">
+			<cfset local.retVal = arguments.filepath>
 
 			<cfif IsDefined("variables.mappings")>
 				<cfset local.root = ListFirst(arguments.filepath,"/\")>
@@ -56,12 +44,11 @@
 		
 	</cffunction>
 
-	<cffunction name="fnCheckDirectory" output="false" returntype="boolean" hint="Check a directory exists and try to create it if it doesn't">
+	<cffunction name="checkDirectory" output="false" returntype="boolean" hint="Check a directory exists and try to create it if it doesn't">
 		
 		<cfargument name="filepath" type="string" required="true">
 		
-		<cfset var mapping = fnGetFileMapping(arguments.filepath)>
-		<cfset mapping = mapping eq "" ? arguments.filepath : mapping>
+		<cfset var mapping = fileMapping(arguments.filepath)>
 		
 		<cfset var retVal = directoryExists(mapping)>
 
@@ -73,40 +60,27 @@
 		
 	</cffunction>
 
-
-	<cffunction name="fnGetFileName" output="false" returntype="string" hint="Calls getFileMapping but returns original name if none found">
-			
-		<cfargument name="filepath" type="string" required="true">
-		
-		<cfset var sLocal = {}>
-		
-		<cfset local.filename = fnGetFileMapping(arguments.filepath)>
-
-		<cfreturn (local.filename eq "" ? arguments.filepath : local.filename)>
-
-		
-	</cffunction>
-
-	<cffunction name="fnGetAllMappings" output="true" returntype="Struct" hint="Return all mappings"
-		notes="Found some of our stuff e.g. settingsObj had its own mappings functionality. To make sure the mapping definitions
-		are consistent, we can get them out of here and add them to those.
-
-		Ideally we will remove all this individual stuff in time and just use these standard methods.">
+	<cffunction name="getAllMappings" output="true" returntype="Struct" hint="Return all mappings">
 		
 		<cfreturn Duplicate(variables.mappings)>
 		
 	</cffunction>
 		
-	<cffunction name="fnAddMapping" output="false" returntype="boolean" hint="Add a mapping for file path. Returns true on success.">
+	<cffunction name="addMapping" output="false" returntype="boolean" hint="Add a mapping for file path. Returns true if updated">
 			
 		<cfargument name="mapping" type="string" required="true">
 		<cfargument name="filePath" type="string" required="true">
 			
-		<cfset Local.retVal = 0>
+		<cfset Local.retVal = 1>
 		
-		<cfif IsDefined("variables.mappings")>
+		<cfif NOT StructKeyExists(variables.mappings,arguments.mapping)>
 			<cfset variables.mappings[arguments.mapping] = arguments.filePath>
 			<cfset Local.retVal = 1>
+		<cfelse>
+			<cfset Local.retVal = variables.mappings[arguments.mapping] eq arguments.filePath>
+			<cfif NOT Local.retVal>
+				<cfset variables.mappings[arguments.mapping] = arguments.filePath>	
+			</cfif>
 		</cfif>
 
 		
@@ -114,31 +88,11 @@
 		
 	</cffunction>
 
-	<cffunction name="fnGetDirectoryFromFile" output="false" returntype="string" hint="Return the directory from a path">
-			
-		<cfargument name="filePath" type="string" required="true">
-		
-		<cfset var sLocal = {}>
-
-		<cfset local.path = fnGetFileMapping(arguments.filePath)>
-		<cfif local.path neq "">
-			<cfset arguments.filePath = local.path>
-		</cfif>
-
-		<cfset local.dir = Reverse(ListRest(Reverse(arguments.filePath),"/\"))>
-		
-		<cfreturn local.dir>
-		
-	</cffunction>
-
-	<cffunction name="fnFileExists" output="false" hint="FileExists that checks in mappings">
+	<cffunction name="fileMappingExists" output="false" hint="FileExists that checks in mappings">
 		<cfargument name="filepath" type="string" required="true">
 		
-		<cfset local.filepath = fnGetFileMapping(arguments.filepath)>
-		<cfif local.filepath eq "">
-			<cfset local.filepath = arguments.filepath>
-		</cfif>
-
+		<cfset local.filepath = fileMapping(arguments.filepath)>
+		
 		<cfreturn fileExists(local.filepath)>
 		
 	</cffunction>
@@ -148,7 +102,7 @@
 	This was the start of an attempt at building a proper distributed resource system, where a reload would update any resources like this that had been
 	updated. The idea would be that there would be another set of mappings for URLs, and that the system would check the cache times on all these --->
 
-	<cffunction name="fnReadFile" output="false"  hint="Load a file from disk. Can load a local file, a mapped file (see fnGetFileMapping()) or a URL.
+	<cffunction name="fnReadFile" output="false"  hint="Load a file from disk. Can load a local file, a mapped file (see fileMapping()) or a URL.
 		A URL can be supplied either with http:// which will force a remote load, or as mapping to a URL which will download the file to
 		the mapped location if it doesn't already exist. Eg. if docs.clikpic.com is mapped to c:\docs\clikpic and you specify docs.clikpic.com/development/rubbish.doc, it will
 		check the local file system for c:\docs\clikpic\development\rubbish.doc, and if it doesn't exist, will try to download it from http://docs.clikpic.com/development/rubbish.doc (see note above)">
@@ -171,11 +125,11 @@
 			</cftry>
 		<cfelse>
 			<cfset local.tickCount = getTickCount()>
-			<cfset sLocal.filepath = fnGetFileMapping(arguments.filepath,1)>
+			<cfset sLocal.filepath = fileMapping(arguments.filepath,1)>
 
 			<cfset local.mappingTime = getTickCount() - local.tickCount>
 			<!--- <cfif local.mappingTime gt 200>
-				<cfoutput>utils.fnGetFileMapping() Took #local.mappingTime# to load #arguments.filepath# (see fnReadFile())</cfoutput>
+				<cfoutput>utils.fileMapping() Took #local.mappingTime# to load #arguments.filepath# (see fnReadFile())</cfoutput>
 				<cfabort>
 			</cfif> --->
 			<cfif NOT FileExists(sLocal.filepath)>
@@ -320,78 +274,7 @@
 
 		
 	<cfscript>
-	/**
-	* Makes a row of a query into a structure.
-	*
-	* @param query      The query to work with.
-	* @param row      Row number to check. Defaults to row 1.
-	* @return Returns a structure.
-	* @author Nathan Dintenfass (nathan@changemedia.com)
-	* @version 1, December 11, 2001
-	*/
-	function queryRowToStruct(query){
-	    //by default, do this to the first row of the query
-	    var row = 1;
-	    //a var for looping
-	    var ii = 1;
-	    //the cols to loop over
-	    var cols = listToArray(arguments.query.columnList);
-	    //the struct to return
-	    var stReturn = structnew();
-	    //if there is a second argument, use that for the row number
-	    if(arrayLen(arguments) GT 1)
-	        row = arguments[2];
-	    //loop over the cols and build the struct from the query row    
-	    for(ii = 1; ii lte arraylen(cols); ii = ii + 1){
-	        stReturn[cols[ii]] = arguments.query[cols[ii]][row];
-	    }        
-	    //return the struct
-	    return stReturn;
-	}
-
-	/**
-	* Converts a query object into a structure of structures accessible by its primary key.
-	* 
-	* Ifthere is cust one other column, returns simple values as keys
-	*
-	* @param theQuery      The query you want to convert to a structure of structures.
-	* @param primaryKey      Query column to use as the primary key.
-	* @return Returns a structure.
-	* @author Shawn Seley (shawnse@aol.com)
-	* @version 1, March 27, 2002
-	*/
-	function QueryToStructOfStructures(theQuery, primaryKey,removeKey=0){
-	var theStructure = structnew();
-
-	var cols = [];
-
-	var row = 1;
-	var thisRow = "";
-	var col = 1;
-
-	for (local.check in getMetaData(arguments.theQuery)) {
-		// remove primary key from cols listing
-		if (NOT Arguments.removeKey OR  (local.check.name neq arguments.primaryKey)) {
-			ArrayAppend(cols, local.check.name);	
-		}
-	}
-
-	for(row = 1; row LTE theQuery.recordcount; row = row + 1){
-		if (arraylen(cols) gt 1) {
-			thisRow = structnew();
-			for(col = 1; col LTE arraylen(cols); col = col + 1){
-				thisRow[cols[col]] = theQuery[cols[col]][row];
-			}
-			theStructure[theQuery[primaryKey][row]] = duplicate(thisRow);
-		}
-		else {
-			theStructure[theQuery[primaryKey][row]] = theQuery[cols[1]][row];
-		}
-	}
-	return(theStructure);
-	}
-
-
+	
 
 	/**
 	* Recursive functions to compare structures and arrays.
@@ -475,7 +358,7 @@
 
 </cfscript>
 
-<cffunction name="fnDeepStructAppend" output="false" returntype="void" hint="Appends the second struct to the first.">
+<cffunction name="deepStructAppend" output="false" returntype="void" hint="Appends the second struct to the first.">
 	
 	<cfargument name="struct1" type="struct" hint="Struct to which values from struct2 are appended.">
 	<cfargument name="struct2" type="struct" hint="Append these values to struct1.">
@@ -490,7 +373,7 @@
 		if(StructKeyExists(arguments.struct1,sLocal.key) AND 
 			IsStruct(arguments.struct2[sLocal.key]) AND 
 			IsStruct(arguments.struct1[sLocal.key])){
-			fnDeepStructAppend(arguments.struct1[sLocal.key],arguments.struct2[sLocal.key],arguments.overwriteDeep);
+			deepStructAppend(arguments.struct1[sLocal.key],arguments.struct2[sLocal.key],arguments.overwriteDeep);
 		}
 		else if (arguments.overwrite OR NOT StructKeyExists(arguments.struct1,sLocal.key)){
 			arguments.struct1[sLocal.key] = Duplicate(arguments.struct2[sLocal.key]);
@@ -500,7 +383,7 @@
 
 </cffunction>
 
-<cffunction name="fnStructOR" output="false" returntype="void" hint="Takes two structs with boolean values and does an OR operation on the keys. One deep only. REMOVES NON Boolean">
+<cffunction name="structOR" output="false" returntype="void" hint="Takes two structs with boolean values and does an OR operation on the keys. One deep only. REMOVES NON Boolean">
 	
 	<cfargument name="struct1" hint="Struct to which values from struct2 are compared.">
 	<cfargument name="struct2" hint="Compare these values to struct1.">
@@ -528,7 +411,7 @@
 
 </cffunction>
 
-<cffunction name="fnStructClean" output="false" returntype="void" hint="Remove keys from one struct that aren't in a second one">
+<cffunction name="structClean" output="false" returntype="void" hint="Remove keys from one struct that aren't in a second one">
 	
 	<cfargument name="struct1" hint="Struct to be cleaned">
 	<cfargument name="struct2" hint="These keys can be present in struct one">
@@ -545,7 +428,7 @@
 
 </cffunction>
 
-<cffunction name="StructRefresh" output="false" returntype="void" hint="Struct append but only uses existing keys.">
+<cffunction name="structRefresh" output="false" returntype="void" hint="Struct append but only uses existing keys.">
 	
 	<cfargument name="struct1" hint="Struct to be updated">
 	<cfargument name="struct2" hint="Values to overwrite originals">
@@ -556,7 +439,7 @@
 	for(sLocal.key IN arguments.struct1){
 		if(StructKeyExists(arguments.struct2,sLocal.key)) {
 			if( isStruct(arguments.struct1[sLocal.key]) AND isStruct(arguments.struct2[sLocal.key]) ) {
-				StructRefresh(arguments.struct1[sLocal.key], arguments.struct2[sLocal.key]);
+				structRefresh(arguments.struct1[sLocal.key], arguments.struct2[sLocal.key]);
 			} else {
 				arguments.struct1[sLocal.key] = Duplicate(arguments.struct2[sLocal.key]);
 			}
@@ -566,57 +449,7 @@
 
 </cffunction>
 
-<!--- 
-	* Author: Ben Nadel (http://www.bennadel.com)
- --->
-<cffunction name="StructCreate"
-	access="public"
-	returntype="struct"
-	output="false"
-	hint="Creates a struct based on the argument pairs.">
- 
-	<!--- Define the sLocal scope. --->
-	<cfset var sLocal = StructNew()>
- 
-	<!--- Create the target struct. --->
-	<cfset sLocal.Struct = StructNew()>
- 
-	<!--- Loop over the arguments. --->
-	<cfloop collection="#ARGUMENTS#" item="sLocal.Key">
-		
-		<!--- Set the struct pair values. --->
-		<cfset sLocal.Struct[ sLocal.Key ] = ARGUMENTS[ sLocal.Key ]>
-		
-	</cfloop>
- 
-	<!--- Return the resultant struct. --->
-	<cfreturn sLocal.Struct />
-	
-</cffunction>
-<cffunction name="ListRemoveDuplicates" returntype="string" output="false" hint="Takes a list argument and returns that list with the duplicates removed.">
-	
-	<cfargument name="list" type="string" required="true" hint="A list to remove the duplicates from.">
-	<cfargument name="delimiters" type="string" required="false" default=",">
-	<cfargument name="processedVals" type="struct" required="false" default="#StructNew()#" hint="You can pass in an empty struct to return counts of items in list or even pass in some values - any item defined in the struct will be omitted from the returned list">
-	
-	<cfset var i = 0>
-	<cfset var retVal = "">
-	
-	<cfloop list="#arguments.list#" index="i" delimiters="#arguments.delimiters#">
-		<cfif NOT StructKeyExists(arguments.processedVals,i)>
-			<cfset retVal = ListAppend(retVal,i)>
-			<cfset arguments.processedVals[i]= 1>
-		<cfelse>
-			<cfset arguments.processedVals[i] += 1>
-		</cfif>
-		
-	</cfloop>
-	
-	<cfreturn retVal>
-	
-</cffunction>
-
-<cffunction name="fnParseIniFile" returntype="struct" output="false" hint="Parses an ini file and returns values in a struct (or struct of struct keyed by section name if no section attribute is specified)">
+<cffunction name="parseIniFile" returntype="struct" output="false" hint="Parses an ini file and returns values in a struct (or struct of struct keyed by section name if no section attribute is specified)">
 	
 	<cfargument name="ini_file" type="string" required="true" hint="File to parse">
 	<cfargument name="section" type="string" required="no" hint="Section to parse values for. If no section is specified, the return struct is a struct of structs keyed by the section names">
@@ -669,7 +502,7 @@
 
 </cffunction>
 
-<cffunction name="checkSettingsInheritance">
+<cffunction name="checkSettingsInheritance" access="private" hint="see parseIniFile">
 	<cfargument name="section">
 	<cfargument name="settings">
 	<cfif StructKeyExists(arguments.section, "inherit")>
@@ -2211,7 +2044,6 @@ exit /b 1
 	<cfargument name="slist" required="yes">
 	<cfargument name="delimiter" required="no" default=",">
 
-	<cfset var local = {}>
 	<cfset var myList = "">
 	<cfloop from="#ListLen(arguments.slist,arguments.delimiter)#" to="1" step="-1" index="local.i">
 		<cfset local.val = ListGetAt(arguments.slist,local.i,arguments.delimiter)>
@@ -2226,15 +2058,14 @@ exit /b 1
 	
 	<cfargument name="domainName" required="yes">
 
-	<cfset var local = {}>
 	<cfset var retVal = {}>
-	
+		
 	<cfset arguments.domainName = ReReplace(arguments.domainName,"http\:\/\/(s)?","")>
 	<cfoutput>#arguments.domainName#</cfoutput><br>
 
 	<cfif NOT StructKeyExists(server,"TLDs")>
 		<cfset local.tlds = {}>
-		<cffile action="read" file="#GetDirectoryFromPath(getCurrentTemplatePath())#/effective_tld_names.dat" variable="local.data">
+		<cffile action="read" file="#GetDirectoryFromPath(getCurrentTemplatePath())#public_suffix_list.dat" variable="local.data">
 
 		<cfloop index="local.line" list="#local.data#" delimiters="#chr(13)##chr(10)#">
 			<cfif NOT Left(trim(local.line),2) eq "//">
@@ -2273,40 +2104,6 @@ exit /b 1
 	
 	<cfreturn retVal>
 
-</cffunction>
-
-<cffunction name="fnArraySplice">
-	
-	<cfargument name="vArray" required="true">
-	<cfargument name="start" required="true" hint="positive int to get elements from start to end or negative into to get last x elements">
-	<cfargument name="end" required="false" hint="positive int to get elements from start to end or negative into to get last x elements">
-
-	<cfscript>
-	local.retList = ArrayNew(1);
-	
-	local.arrLen = ArrayLen(arguments.vArray);
-	if (NOT local.arrLen) return local.retList;
-	 
-	if (arguments.start lt 1) {
-		arguments.start = local.arrLen - arguments.start;
-	}
-	if (NOT StructKeyExists(arguments,"end") OR arguments.end gt local.arrLen) {
-		arguments.end = local.arrLen;
-	}
-	else {
-		if (arguments.end lt 1) {
-			arguments.end = local.arrLen - arguments.end;
-		}
-	}
-	if (arguments.end lt arguments.start) {
-		throw("End #arguments.end# is lt start #arguments.start# for arraySplice");
-	}
-	for (local.i = arguments.start; local.i lte arguments.end; local.i += 1) {
-		ArrayAppend(local.retList,arguments.vArray[local.i]);
-	}
-	return local.retList;
-	</cfscript>
-	
 </cffunction>
 
 <!---
@@ -2609,12 +2406,12 @@ array function structMultiSort(required struct data, required array sortCriteria
 
 /**
  * sort a struct on a key that might contain empty data
- * @param   required     struct        data             The data to sort
- * @param   required     string        sortType         sort type
- * @param   required     string        sortorder        asc | desc
- * @param   required     string        pathtosubelement The key to sort on
- * @param   defaultValue The value to give to any empty elements
- * @return {array}
+ * 
+ * @data             The data to sort
+ * @sortType         sort type
+ * @sortorder        asc | desc
+ * @pathtosubelement The key to sort on
+ * @defaultValue The value to give to any empty elements
  */
 array function structSortEmpty( required struct data, required string sortType, required string sortorder, required string pathtosubelement, defaultValue ) {
 	var tempData = duplicate(arguments.data);
@@ -2623,7 +2420,7 @@ array function structSortEmpty( required struct data, required string sortType, 
 			arguments.defaultValue = -9*10^14;
 		break;
 		default:
-			throw('structSortEmpty called with sortType="#arguments.sortType#" without specifying defaultValue');
+			throw('only numeric value supported for structsortempty');
 		break;
 	}
 	for ( local.key in tempData ) {
@@ -2681,60 +2478,9 @@ function arrayOfStructsSort(aOfS,key){
 		//return the array
 		return returnArray;
 }
-/**
- * Convert a struct to a plain text string. Use to dump structs when writing text e.g. css when dump won't work
- * @param  Struct sData       Struct to dump
- * @return String        Plain text sting
- */
-public string function structToString(Struct sData) {
-	var max = 5;
-	var key = false;
-	var retVal = "";
 
-	for (key in arguments.sData) {
-		if (Len(key) gt max) max = len(key);
-	}
-	max += 2;
-	for (key in arguments.sData) {
-		retVal &= LJustify(key,max) & arguments.sData[key] & chr(13) & chr(10);
-	}
-	return retVal;
-
-}
-
-/**
- * Display a help button for use with doClikHelp() in clikUtils js
- *
- * @ID      Unique ID
- * @content Text of help item
- * @title   Title of help dialogue
- */
-public string function helpButton(required string  ID, required  string content, string title = "Help") {
-
-	var retVal = "<span id='#arguments.ID#_helpicon' class='helpicon noprint' title='#arguments.title#'>";
-
-	retVal &= "<span class='icon-stack'>";
-   	retVal &= "<i class='icon-stack-base icon-sign-blank noprint'></i>";
-   	retVal &= "<i class='icon-question icon-light noprint'></i>";
-   	retVal &= "</span>";
-   	retVal &= "<div class='clikHelpTitle'>#arguments.title#</div>";
-   	retVal &= "<div class='clikHelpContent'>#arguments.content#</div>";
-   	retVal &= "</span>";
-
-	return  retVal;
-
-}
 	
 </cfscript>
-
-	<cffunction name="getRemoteFile" output="no" hint="Save a remote file to the specified directory">
-		
-		<cfargument name="url" type="string" required="true">
-		<cfargument name="path" type="string" required="true">
-		
-		<cfhttp url="#arguments.url#" path="#arguments.path#">
-		
-	</cffunction>
 
 	
 
@@ -2762,10 +2508,8 @@ public string function helpButton(required string  ID, required  string content,
 		<cfreturn retVar>
 	
 	</cffunction>
-
 	
-
-	<cffunction name="fnFieldReplace" hint="Replace fields in format {$filename} with values from struct" output="no" returntype="string">
+	<cffunction name="fieldReplace" hint="Replace fields in format {$filename} with values from struct" output="no" returntype="string">
 		<cfargument name="text" type="string" required="yes">
 		<cfargument name="fields" type="struct" required="yes">
 		
@@ -2773,7 +2517,6 @@ public string function helpButton(required string  ID, required  string content,
 		<cfset var sfield = false>
 		<cfset var matches = false>
 		<cfset var match = false>
-		
 		
 		<cfset matches = reMatchNoCase("\{\$*.+?\}",arguments.text)>
 		<cfif arrayLen(matches)>
