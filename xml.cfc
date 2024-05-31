@@ -94,17 +94,26 @@ component {
 	 * helper function for parseXMLNode. Checks whether node should be an array of nodes
 	 */
 	private boolean function isArrayNode(required xmlElement) {
-		//  if all the children have the same name, then this is an array 
+		
 		var isArray = 0;
 		var childNames = {};
-		if ( structIsEmpty(arguments.xmlElement.XMLAttributes) && arrayLen(arguments.xmlElement.xmlChildren) > 1 ) {
-			for ( local.child in arguments.xmlElement.xmlChildren ) {
-				childNames[local.child.XMLName] = 1;
-			}
-			if ( structCount(childNames) == 1 ) {
+		
+		if ( structIsEmpty(arguments.xmlElement.XMLAttributes) ) {
+			//  if there's only one child to a tag with no attributes, it's an array with one element.
+			if (arrayLen(arguments.xmlElement.xmlChildren) eq 1) {
 				isArray = 1;
 			}
+			//  if all the children have the same name, then this is an array 
+			else if ( arrayLen(arguments.xmlElement.xmlChildren) > 1 ) {
+				for ( local.child in arguments.xmlElement.xmlChildren ) {
+					childNames[local.child.XMLName] = 1;
+				}
+				if ( structCount(childNames) == 1 ) {
+					isArray = 1;
+				}
+			}
 		}
+		
 		return isArray;
 	}
 
