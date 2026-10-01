@@ -16,7 +16,7 @@ component {
 			server.utils["patternObj"] = createObject( "java", "java.util.regex.Pattern");
 		}
 		if ( arguments.reload OR NOT structKeyExists(server.utils,"flexmark") ) {
-			server.utils["flexmark"] =  new markdown.flexmark(attributes=1);
+			server.utils["flexmark"] =  new markdown.flexmark(attributes=1,attributes=1,jarpath=server.system.environment.javalib & "\flexmark-all-0.64.0-lib.jar",jsoupjar=server.system.environment.javalib & "\jsoup-1.22.1.jar");
 		}
 
 		variables.utils = server.utils;
